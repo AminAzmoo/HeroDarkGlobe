@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Globe from "globe.gl";
 
 interface LocationPoint {
@@ -57,11 +57,57 @@ const highlightArc: ArcData = {
   label: "Frankfurt - Toronto",
 };
 
+interface LocationInfo {
+  name: string;
+  lat: number;
+  lng: number;
+  status: string;
+  latency: string;
+  bandwidth: string;
+}
+
+const locationDetails: Record<string, LocationInfo> = {
+  "Tehran": {
+    name: "Tehran Data Center",
+    lat: 35.6892,
+    lng: 51.3890,
+    status: "Online",
+    latency: "12ms",
+    bandwidth: "250 Gbps",
+  },
+  "Frankfurt": {
+    name: "Frankfurt Hub",
+    lat: 50.1109,
+    lng: 8.6821,
+    status: "Online",
+    latency: "8ms",
+    bandwidth: "500 Gbps",
+  },
+  "Toronto": {
+    name: "Toronto Data Center",
+    lat: 43.6532,
+    lng: -79.3832,
+    status: "Online",
+    latency: "15ms",
+    bandwidth: "350 Gbps",
+  },
+  "Tokyo": {
+    name: "Tokyo Data Center",
+    lat: 35.6762,
+    lng: 139.6503,
+    status: "Online",
+    latency: "20ms",
+    bandwidth: "400 Gbps",
+  },
+};
+
 export function GlobeVisualization() {
   const containerRef = useRef<HTMLDivElement>(null);
   const globeRef = useRef<ReturnType<typeof Globe> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<LocationInfo | null>(null);
+  const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -107,12 +153,37 @@ export function GlobeVisualization() {
         .pointsData(locations)
         .pointLat("lat")
         .pointLng("lng")
-        .pointColor("color")
+        .pointColor((d: object) => {
+          const point = d as LocationPoint;
+          return hoveredLocation === point.name ? "#fbbf24" : point.color;
+        })
         .pointAltitude(0.02)
-        .pointRadius(0.5)
+        .pointRadius((d: object) => {
+          const point = d as LocationPoint;
+          return hoveredLocation === point.name ? 0.7 : 0.5;
+        })
+        .onPointHover((point: object | null) => {
+          if (point) {
+            const p = point as LocationPoint;
+            setHoveredLocation(p.name);
+          } else {
+            setHoveredLocation(null);
+          }
+        })
+        .onPointClick((point: object | null) => {
+          if (point) {
+            const p = point as LocationPoint;
+            setSelectedLocation(locationDetails[p.name]);
+            globe.pointOfView({ lat: p.lat, lng: p.lng, altitude: 1.5 }, 1000);
+          }
+        })
         .pointLabel((d: object) => {
           const point = d as LocationPoint;
-          return `<div class="px-2 py-1 bg-card/90 backdrop-blur-sm rounded-md border border-card-border text-foreground text-sm font-medium shadow-lg">${point.name}</div>`;
+          const detail = locationDetails[point.name];
+          return `<div class="px-3 py-2 bg-card/95 backdrop-blur-sm rounded-lg border border-card-border text-foreground text-sm font-medium shadow-lg whitespace-nowrap">
+            <div class="font-semibold">${detail.name}</div>
+            <div class="text-xs text-muted-foreground mt-1">Status: ${detail.status}</div>
+          </div>`;
         });
 
       globe
@@ -129,7 +200,7 @@ export function GlobeVisualization() {
         .arcAltitudeAutoScale(0.4)
         .arcLabel((d: object) => {
           const arc = d as ArcData;
-          return `<div class="px-2 py-1 bg-card/90 backdrop-blur-sm rounded-md border border-card-border text-foreground text-sm font-medium shadow-lg">${arc.label}</div>`;
+          return `<div class="px-3 py-2 bg-card/95 backdrop-blur-sm rounded-lg border border-card-border text-foreground text-sm font-medium shadow-lg">${arc.label}</div>`;
         });
 
       const cablePath = {
@@ -152,7 +223,7 @@ export function GlobeVisualization() {
         .pathDashAnimateTime(8000)
         .pathLabel((path: object) => {
           const p = path as typeof cablePath;
-          return `<div class="px-2 py-1 bg-card/90 backdrop-blur-sm rounded-md border border-card-border text-foreground text-sm font-medium shadow-lg">${p.properties.name}</div>`;
+          return `<div class="px-3 py-2 bg-card/95 backdrop-blur-sm rounded-lg border border-card-border text-foreground text-sm font-medium shadow-lg">${p.properties.name}</div>`;
         });
 
       globe.pointOfView({ lat: 30, lng: 30, altitude: 2.5 }, 0);
@@ -178,7 +249,7 @@ export function GlobeVisualization() {
         globeRef.current._destructor?.();
       }
     };
-  }, []);
+  }, [hoveredLocation]);
 
   if (error) {
     return (
@@ -233,17 +304,74 @@ export function GlobeVisualization() {
           <h4 className="text-xs font-semibold text-foreground mb-2">Locations</h4>
           <div className="grid grid-cols-2 gap-1.5 text-xs">
             {locations.map((loc) => (
-              <div key={loc.name} className="flex items-center gap-1.5">
+              <button
+                key={loc.name}
+                onClick={() => {
+                  setSelectedLocation(locationDetails[loc.name]);
+                  if (globeRef.current) {
+                    globeRef.current.pointOfView({ lat: loc.lat, lng: loc.lng, altitude: 1.5 }, 1000);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-2 py-1 rounded transition-colors hover:bg-accent/50"
+                data-testid={`location-${loc.name.toLowerCase()}`}
+              >
                 <div 
                   className="w-2 h-2 rounded-full" 
                   style={{ backgroundColor: loc.color }}
                 />
-                <span className="text-muted-foreground">{loc.name}</span>
-              </div>
+                <span className="text-muted-foreground hover:text-foreground">{loc.name}</span>
+              </button>
             ))}
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedLocation && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-4 right-4 w-72 px-4 py-3 bg-card/95 backdrop-blur-sm rounded-xl border border-card-border shadow-lg"
+            data-testid="location-details"
+          >
+            <button
+              onClick={() => setSelectedLocation(null)}
+              className="absolute top-2 right-2 p-1 rounded hover:bg-accent/50 transition-colors"
+              data-testid="button-close-details"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="space-y-3">
+              <div>
+                <h3 className="font-semibold text-foreground">{selectedLocation.name}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {selectedLocation.lat.toFixed(4)}° N, {selectedLocation.lng.toFixed(4)}° E
+                </p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div className="px-2 py-2 rounded-lg bg-accent/50">
+                  <p className="text-xs text-muted-foreground font-medium">Status</p>
+                  <p className="text-sm font-semibold text-emerald-500 mt-1">{selectedLocation.status}</p>
+                </div>
+                <div className="px-2 py-2 rounded-lg bg-accent/50">
+                  <p className="text-xs text-muted-foreground font-medium">Latency</p>
+                  <p className="text-sm font-semibold text-blue-500 mt-1">{selectedLocation.latency}</p>
+                </div>
+                <div className="px-2 py-2 rounded-lg bg-accent/50">
+                  <p className="text-xs text-muted-foreground font-medium">Bandwidth</p>
+                  <p className="text-sm font-semibold text-purple-500 mt-1">{selectedLocation.bandwidth}</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
