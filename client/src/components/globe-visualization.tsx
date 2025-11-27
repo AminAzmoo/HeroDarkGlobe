@@ -103,7 +103,7 @@ const locationDetails: Record<string, LocationInfo> = {
 
 export function GlobeVisualization() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const globeRef = useRef<ReturnType<typeof Globe> | null>(null);
+  const globeRef = useRef<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<LocationInfo | null>(null);
@@ -122,7 +122,7 @@ export function GlobeVisualization() {
     });
 
     try {
-      const globe = Globe()(container)
+      const globe = new (Globe as any)(container)
         .globeImageUrl("//cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg")
         .bumpImageUrl("//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png")
         .backgroundImageUrl("//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png")
