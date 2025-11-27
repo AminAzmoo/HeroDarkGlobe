@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Globe from "globe.gl";
+import { GlobeSearch } from "./globe-search";
 
 interface LocationPoint {
   name: string;
@@ -108,6 +109,13 @@ export function GlobeVisualization() {
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<LocationInfo | null>(null);
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
+
+  const handleLocationSelect = (location: LocationPoint) => {
+    setSelectedLocation(locationDetails[location.name]);
+    if (globeRef.current) {
+      globeRef.current.pointOfView({ lat: location.lat, lng: location.lng, altitude: 1.5 }, 1000);
+    }
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -279,6 +287,11 @@ export function GlobeVisualization() {
         </div>
       )}
       
+      <GlobeSearch 
+        locations={locations} 
+        onLocationSelect={handleLocationSelect}
+      />
+
       <div 
         ref={containerRef} 
         className="w-full h-full rounded-2xl overflow-hidden"

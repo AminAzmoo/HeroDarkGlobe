@@ -145,7 +145,24 @@ export class MemStorage implements IStorage {
   }
 
   async getKPIData(): Promise<KPIData[]> {
-    return this.kpiData;
+    // Simulate real-time updates by varying the values slightly
+    const baseKPI = this.kpiData;
+    return baseKPI.map(kpi => {
+      if (kpi.id === "bandwidth") {
+        const variance = Math.floor(Math.random() * 100) - 50;
+        const newValue = Math.max(750, Math.min(950, parseInt(kpi.value) + variance));
+        return { ...kpi, value: newValue.toString(), trendValue: `${variance > 0 ? '+' : ''}${variance} Gbps` };
+      }
+      if (kpi.id === "uptime") {
+        const variance = (Math.random() * 0.1 - 0.05).toFixed(2);
+        return { ...kpi, trendValue: `${parseFloat(variance) > 0 ? '+' : ''}${variance}%` };
+      }
+      if (kpi.id === "servers") {
+        const variance = Math.floor(Math.random() * 100) - 50;
+        return { ...kpi, value: (parseInt(kpi.value.replace(",", "")) + variance).toLocaleString(), trendValue: `${variance > 0 ? '+' : ''}${variance}` };
+      }
+      return kpi;
+    });
   }
 
   async getGlobeData(): Promise<GlobeData> {

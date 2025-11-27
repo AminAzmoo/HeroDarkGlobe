@@ -1,83 +1,12 @@
 import { motion } from "framer-motion";
-import { KPICard, KPIData } from "@/components/kpi-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { KPICard } from "@/components/kpi-card";
 import { GlobeVisualization } from "@/components/globe-visualization";
-import { 
-  Activity, 
-  Wifi, 
-  Server, 
-  Shield, 
-  Zap, 
-  Clock 
-} from "lucide-react";
-
-const kpiData: KPIData[] = [
-  {
-    id: "uptime",
-    label: "System Uptime",
-    value: "99.97",
-    unit: "%",
-    trend: "up",
-    trendValue: "+0.02%",
-    badgeVariant: "success",
-    badgeText: "Excellent",
-    icon: <Activity className="w-4 h-4" />,
-  },
-  {
-    id: "bandwidth",
-    label: "Bandwidth Usage",
-    value: "847",
-    unit: "Gbps",
-    trend: "up",
-    trendValue: "+12.4%",
-    badgeVariant: "primary",
-    badgeText: "High Load",
-    icon: <Wifi className="w-4 h-4" />,
-  },
-  {
-    id: "servers",
-    label: "Active Servers",
-    value: "1,284",
-    trend: "up",
-    trendValue: "+48",
-    badgeVariant: "info",
-    badgeText: "Scaling",
-    icon: <Server className="w-4 h-4" />,
-  },
-  {
-    id: "threats",
-    label: "Threats Blocked",
-    value: "12.4K",
-    trend: "down",
-    trendValue: "-8.2%",
-    badgeVariant: "warning",
-    badgeText: "Monitoring",
-    icon: <Shield className="w-4 h-4" />,
-  },
-  {
-    id: "latency",
-    label: "Avg. Latency",
-    value: "24",
-    unit: "ms",
-    trend: "down",
-    trendValue: "-3ms",
-    badgeVariant: "success",
-    badgeText: "Optimal",
-    icon: <Zap className="w-4 h-4" />,
-  },
-  {
-    id: "requests",
-    label: "API Requests",
-    value: "2.8M",
-    unit: "/hr",
-    trend: "up",
-    trendValue: "+156K",
-    badgeVariant: "neutral",
-    badgeText: "Normal",
-    icon: <Clock className="w-4 h-4" />,
-  },
-];
+import { useKPIData } from "@/hooks/use-kpi-data";
 
 export default function Dashboard() {
+  const { data: kpiData, isLoading, error } = useKPIData();
+
   return (
     <div className="min-h-screen pt-20 pb-8" data-testid="dashboard-page">
       <div className="max-w-7xl mx-auto px-4 space-y-8">
@@ -97,9 +26,19 @@ export default function Dashboard() {
 
         <section data-testid="kpi-section">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {kpiData.map((kpi, index) => (
-              <KPICard key={kpi.id} data={kpi} index={index} />
-            ))}
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-32 rounded-xl" />
+              ))
+            ) : error ? (
+              <div className="col-span-full text-center py-8">
+                <p className="text-muted-foreground">Failed to load KPI data</p>
+              </div>
+            ) : (
+              kpiData?.map((kpi: any, index: number) => (
+                <KPICard key={kpi.id} data={kpi} index={index} />
+              ))
+            )}
           </div>
         </section>
 

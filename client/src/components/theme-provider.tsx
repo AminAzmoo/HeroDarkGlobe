@@ -13,7 +13,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("theme") as Theme;
+      const saved = localStorage.getItem("netglobe_theme") as Theme;
       return saved || "dark";
     }
     return "dark";
@@ -23,11 +23,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(theme);
-    localStorage.setItem("theme", theme);
+    localStorage.setItem("netglobe_theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme(prev => {
+      const newTheme = prev === "dark" ? "light" : "dark";
+      return newTheme;
+    });
   };
 
   return (
