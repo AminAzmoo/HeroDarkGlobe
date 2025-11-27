@@ -139,6 +139,14 @@ export function GlobeVisualization() {
         .width(container.clientWidth)
         .height(container.clientHeight);
 
+      // Set transparent background
+      if (globe.renderer) {
+        globe.renderer.setClearColor(0x000000, 0);
+      }
+      if (globe.scene) {
+        globe.scene.background = null;
+      }
+
       globeRef.current = globe;
 
       fetch("https://cdn.jsdelivr.net/npm/three-globe/example/hexed-polygons/ne_110m_admin_0_countries.geojson")
