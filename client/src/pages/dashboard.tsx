@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { KPICard } from "@/components/kpi-card";
 import { GlobeVisualization } from "@/components/globe-visualization";
 import { useKPIData } from "@/hooks/use-kpi-data";
@@ -9,12 +11,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen pt-20 pb-8" data-testid="dashboard-page">
-      <div className="max-w-7xl mx-auto px-4 space-y-8">
+      <div className="max-w-7xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="space-y-2"
+          className="space-y-2 mb-8"
         >
           <h1 className="text-2xl font-semibold" data-testid="dashboard-title">
             Network Dashboard
@@ -24,44 +26,62 @@ export default function Dashboard() {
           </p>
         </motion.div>
 
-        <section data-testid="kpi-section">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {isLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-32 rounded-xl" />
-              ))
-            ) : error ? (
-              <div className="col-span-full text-center py-8">
-                <p className="text-muted-foreground">Failed to load KPI data</p>
-              </div>
-            ) : (
-              kpiData?.map((kpi: any, index: number) => (
-                <KPICard key={kpi.id} data={kpi} index={index} />
-              ))
-            )}
-          </div>
-        </section>
-
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="space-y-4"
-          data-testid="globe-section"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold">Global Network Map</h2>
-              <p className="text-sm text-muted-foreground">
-                Interactive visualization of network nodes and connections
-              </p>
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          <motion.section
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="flex-1"
+            data-testid="globe-section"
+          >
+            <div className="h-[70vh] min-h-[600px] rounded-2xl overflow-hidden relative shadow-2xl"
+              style={{
+                boxShadow: "0 0 60px rgba(59, 130, 246, 0.3), inset 0 0 60px rgba(59, 130, 246, 0.1)"
+              }}
+            >
+              <GlobeVisualization />
             </div>
-          </div>
-          
-          <div className="h-[60vh] min-h-[500px] rounded-2xl border border-card-border bg-card/30 backdrop-blur-sm overflow-hidden">
-            <GlobeVisualization />
-          </div>
-        </motion.section>
+          </motion.section>
+
+          <section className="w-full lg:w-80 space-y-4" data-testid="kpi-section">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Key Metrics</h3>
+            <div className="grid grid-cols-1 gap-3">
+              {isLoading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-24 rounded-xl" />
+                ))
+              ) : error ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground text-sm">Failed to load KPI data</p>
+                </div>
+              ) : (
+                kpiData?.map((kpi: any, index: number) => (
+                  <motion.div
+                    key={kpi.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card className="hover-elevate p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 space-y-1">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">{kpi.label}</p>
+                          <p className="text-lg font-bold font-mono">{kpi.value}{kpi.unit ? ` ${kpi.unit}` : ""}</p>
+                          <p className={`text-xs font-medium ${kpi.trend === "up" ? "text-emerald-500" : kpi.trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
+                            {kpi.trendValue}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-xs whitespace-nowrap flex-shrink-0 animate-pulse-badge">
+                          {kpi.badgeText}
+                        </Badge>
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))
+              )}
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );
