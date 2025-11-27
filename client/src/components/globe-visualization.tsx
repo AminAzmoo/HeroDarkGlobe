@@ -139,14 +139,6 @@ export function GlobeVisualization() {
         .width(container.clientWidth)
         .height(container.clientHeight);
 
-      // Set transparent background
-      if (globe.renderer) {
-        globe.renderer.setClearColor(0x000000, 0);
-      }
-      if (globe.scene) {
-        globe.scene.background = null;
-      }
-
       globeRef.current = globe;
 
       fetch("https://cdn.jsdelivr.net/npm/three-globe/example/hexed-polygons/ne_110m_admin_0_countries.geojson")
@@ -302,7 +294,10 @@ export function GlobeVisualization() {
       <div 
         ref={containerRef} 
         className="w-full h-full rounded-2xl overflow-hidden"
-        style={{ minHeight: "500px" }}
+        style={{ 
+          minHeight: "500px",
+          background: 'transparent'
+        }}
       />
 
       <div className="absolute bottom-4 left-4 flex flex-col gap-2" data-testid="globe-legend">
