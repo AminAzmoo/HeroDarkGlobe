@@ -26,117 +26,42 @@ export default function Dashboard() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 auto-rows-max" data-testid="kpi-section">
-          {/* Top Left KPI */}
-          {isLoading ? (
-            <Skeleton className="h-24 rounded-xl" />
-          ) : error ? null : (
-            kpiData?.[0] && (
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0 * 0.05 }}
-              >
-                <Card className="hover-elevate p-4 h-full">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">{kpiData[0].label}</p>
-                    <p className="text-lg font-bold font-mono">{kpiData[0].value}{kpiData[0].unit ? ` ${kpiData[0].unit}` : ""}</p>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={`text-xs font-medium ${kpiData[0].trend === "up" ? "text-emerald-500" : kpiData[0].trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
-                        {kpiData[0].trendValue}
-                      </p>
-                      <Badge variant="outline" className="text-xs animate-pulse-badge">{kpiData[0].badgeText}</Badge>
+        <div className="flex flex-col lg:flex-row gap-4" data-testid="kpi-section">
+          {/* Left column - 3 small KPI cards */}
+          <div className="w-full lg:w-48 flex flex-col gap-2">
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)
+            ) : error ? null : (
+              kpiData?.slice(0, 3).map((kpi: any, index: number) => (
+                <motion.div
+                  key={kpi.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Card className="hover-elevate p-3 h-full">
+                    <div className="flex flex-col gap-0.5">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium line-clamp-1">{kpi.label}</p>
+                      <p className="text-sm font-bold font-mono">{kpi.value}{kpi.unit ? ` ${kpi.unit}` : ""}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className={`text-xs font-medium ${kpi.trend === "up" ? "text-emerald-500" : kpi.trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
+                          {kpi.trendValue}
+                        </p>
+                        <Badge variant="outline" className="text-xs animate-pulse-badge whitespace-nowrap">{kpi.badgeText}</Badge>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )
-          )}
+                  </Card>
+                </motion.div>
+              ))
+            )}
+          </div>
 
-          {/* Top Center KPI */}
-          {isLoading ? (
-            <Skeleton className="h-24 rounded-xl" />
-          ) : error ? null : (
-            kpiData?.[1] && (
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 * 0.05 }}
-              >
-                <Card className="hover-elevate p-4 h-full">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">{kpiData[1].label}</p>
-                    <p className="text-lg font-bold font-mono">{kpiData[1].value}{kpiData[1].unit ? ` ${kpiData[1].unit}` : ""}</p>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={`text-xs font-medium ${kpiData[1].trend === "up" ? "text-emerald-500" : kpiData[1].trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
-                        {kpiData[1].trendValue}
-                      </p>
-                      <Badge variant="outline" className="text-xs animate-pulse-badge">{kpiData[1].badgeText}</Badge>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )
-          )}
-
-          {/* Top Right KPI */}
-          {isLoading ? (
-            <Skeleton className="h-24 rounded-xl" />
-          ) : error ? null : (
-            kpiData?.[2] && (
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * 0.05 }}
-              >
-                <Card className="hover-elevate p-4 h-full">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">{kpiData[2].label}</p>
-                    <p className="text-lg font-bold font-mono">{kpiData[2].value}{kpiData[2].unit ? ` ${kpiData[2].unit}` : ""}</p>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={`text-xs font-medium ${kpiData[2].trend === "up" ? "text-emerald-500" : kpiData[2].trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
-                        {kpiData[2].trendValue}
-                      </p>
-                      <Badge variant="outline" className="text-xs animate-pulse-badge">{kpiData[2].badgeText}</Badge>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )
-          )}
-
-          {/* Right Side KPI */}
-          {isLoading ? (
-            <Skeleton className="h-24 rounded-xl" />
-          ) : error ? null : (
-            kpiData?.[3] && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.15 * 0.05 }}
-              >
-                <Card className="hover-elevate p-4 h-full">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">{kpiData[3].label}</p>
-                    <p className="text-lg font-bold font-mono">{kpiData[3].value}{kpiData[3].unit ? ` ${kpiData[3].unit}` : ""}</p>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={`text-xs font-medium ${kpiData[3].trend === "up" ? "text-emerald-500" : kpiData[3].trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
-                        {kpiData[3].trendValue}
-                      </p>
-                      <Badge variant="outline" className="text-xs animate-pulse-badge">{kpiData[3].badgeText}</Badge>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )
-          )}
-
-          {/* MAIN GLOBE - spans 2x2 in center */}
+          {/* Center - MAIN GLOBE */}
           <motion.section
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="col-span-1 lg:col-span-2 lg:row-span-2 row-span-2"
+            className="flex-1"
             data-testid="globe-section"
           >
             <div className="h-[500px] lg:h-[600px] rounded-2xl overflow-hidden relative shadow-2xl"
@@ -148,83 +73,34 @@ export default function Dashboard() {
             </div>
           </motion.section>
 
-          {/* Bottom Left KPI */}
-          {isLoading ? (
-            <Skeleton className="h-24 rounded-xl" />
-          ) : error ? null : (
-            kpiData?.[4] && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 * 0.05 }}
-              >
-                <Card className="hover-elevate p-4 h-full">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">{kpiData[4].label}</p>
-                    <p className="text-lg font-bold font-mono">{kpiData[4].value}{kpiData[4].unit ? ` ${kpiData[4].unit}` : ""}</p>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={`text-xs font-medium ${kpiData[4].trend === "up" ? "text-emerald-500" : kpiData[4].trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
-                        {kpiData[4].trendValue}
-                      </p>
-                      <Badge variant="outline" className="text-xs animate-pulse-badge">{kpiData[4].badgeText}</Badge>
+          {/* Right column - 3 small KPI cards */}
+          <div className="w-full lg:w-48 flex flex-col gap-2">
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)
+            ) : error ? null : (
+              kpiData?.slice(3, 6).map((kpi: any, index: number) => (
+                <motion.div
+                  key={kpi.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Card className="hover-elevate p-3 h-full">
+                    <div className="flex flex-col gap-0.5">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium line-clamp-1">{kpi.label}</p>
+                      <p className="text-sm font-bold font-mono">{kpi.value}{kpi.unit ? ` ${kpi.unit}` : ""}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className={`text-xs font-medium ${kpi.trend === "up" ? "text-emerald-500" : kpi.trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
+                          {kpi.trendValue}
+                        </p>
+                        <Badge variant="outline" className="text-xs animate-pulse-badge whitespace-nowrap">{kpi.badgeText}</Badge>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )
-          )}
-
-          {/* Bottom Center KPI */}
-          {isLoading ? (
-            <Skeleton className="h-24 rounded-xl" />
-          ) : error ? null : (
-            kpiData?.[5] && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 * 0.05 }}
-              >
-                <Card className="hover-elevate p-4 h-full">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">{kpiData[5].label}</p>
-                    <p className="text-lg font-bold font-mono">{kpiData[5].value}{kpiData[5].unit ? ` ${kpiData[5].unit}` : ""}</p>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={`text-xs font-medium ${kpiData[5].trend === "up" ? "text-emerald-500" : kpiData[5].trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
-                        {kpiData[5].trendValue}
-                      </p>
-                      <Badge variant="outline" className="text-xs animate-pulse-badge">{kpiData[5].badgeText}</Badge>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )
-          )}
-
-          {/* Bottom Right KPI */}
-          {isLoading ? (
-            <Skeleton className="h-24 rounded-xl" />
-          ) : error ? null : (
-            kpiData?.[3] && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.15 * 0.05 }}
-              >
-                <Card className="hover-elevate p-4 h-full">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">{kpiData[3].label}</p>
-                    <p className="text-lg font-bold font-mono">{kpiData[3].value}{kpiData[3].unit ? ` ${kpiData[3].unit}` : ""}</p>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={`text-xs font-medium ${kpiData[3].trend === "up" ? "text-emerald-500" : kpiData[3].trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
-                        {kpiData[3].trendValue}
-                      </p>
-                      <Badge variant="outline" className="text-xs animate-pulse-badge">{kpiData[3].badgeText}</Badge>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            )
-          )}
+                  </Card>
+                </motion.div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
