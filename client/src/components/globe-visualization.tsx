@@ -133,7 +133,6 @@ export function GlobeVisualization() {
       const globe = new (Globe as any)(container)
         .globeImageUrl("//cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg")
         .bumpImageUrl("//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png")
-        .backgroundImageUrl("//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png")
         .showAtmosphere(true)
         .atmosphereColor("rgba(59, 130, 246, 0.3)")
         .atmosphereAltitude(0.25)
